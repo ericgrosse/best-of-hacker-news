@@ -19,9 +19,10 @@ class App extends React.Component<Props, State> {
     for (let i = 0; i < Math.min(data.length, storyIDs.length); ++i) {
       storyIDs[i] = data[i];
     }
-
-    // Retrieve the top 10 comments for each story
-    const commentsPerStory = await Promise.all(
+    
+    // hackerNewsData is an array of objects, each containing story data and an array of top 10 comments
+    const hackerNewsData = await Promise.all(
+      // Retrieve the stories and top 10 commentIDs for each story
       storyIDs.map(async (storyID : Number) => {
         const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${storyID}.json`);
         const commentIDs = new Array(10).fill(null);
@@ -30,6 +31,7 @@ class App extends React.Component<Props, State> {
           commentIDs[i] = data.kids[i];
         }
 
+        // Retrieve the comments from the commentIDs
         const comments = await Promise.all(
           commentIDs.map(async (commentID : Number) => {
             const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${commentID}.json`);
@@ -37,7 +39,10 @@ class App extends React.Component<Props, State> {
           })
         );
 
-        return comments;
+        return {
+          ...data,
+          comments,
+        };
       })
     );
   }

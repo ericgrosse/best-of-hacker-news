@@ -6,68 +6,54 @@ import Grid from '@material-ui/core/Grid';
 interface Props { }
 
 interface State {
-  hackerNewsData: Array<Story>
+  topStories: Array<Story>
 }
 
 interface Story {
   by: string,
-  comments: Array<string>,
+  kids: Array<string>, // kids are comments
   title: string,
   url: string,
 }
 
 class App extends React.Component<Props, State> {
   state: State = {
-    hackerNewsData: []
+    topStories: []
   };
 
   async componentDidMount() {
-    // Retrieve the top 20 storyIDs
-    const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/topstories.json`);
-    let storyIDs = new Array(20).fill(null);
-
-    for (let i = 0; i < Math.min(data.length, storyIDs.length); ++i) {
-      storyIDs[i] = data[i];
-    }
-
-    // hackerNewsData is an array of objects, each containing story data and an array of top 10 comments
-    const hackerNewsData = await Promise.all(
-      // Retrieve the stories and top 10 commentIDs for each story
-      storyIDs.map(async (storyID: number) => {
+    try {
+      // Retrieve the top 20 storyIDs
+      const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/topstories.json`);
+      let storyIDs = new Array(20).fill(null);
+      let storyCount = Math.min(data.length, storyIDs.length);
+  
+      for (let i = 0; i < storyCount; ++i) {
+        storyIDs[i] = data[i];
+      }
+  
+      for (let i = 0; i < storyCount; ++i) {
         try {
-          const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${storyID}.json`);
-          const commentIDs = new Array(10).fill(null);
+          const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${storyIDs[i]}.json`);
 
-          for (let i = 0; i < Math.min((data.kids || []).length, commentIDs.length); ++i) {
-            commentIDs[i] = data.kids[i];
+          // If there are no comments, this property isn't set in the object returned by the API, so set it to an empty array.
+          if (!data.kids) {
+            data.kids = [];
           }
 
-          // Retrieve the comments from the commentIDs
-          const comments = await Promise.all(
-            commentIDs.map(async (commentID: number) => {
-              try {
-                const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${commentID}.json`);
-                return (data || {}).text || null;
-              } catch (e) {
-                console.error(e);
-                return null;
-              }
-            })
-          );
-
-          return {
-            ...data,
-            comments,
-          };
+          this.setState({
+            topStories: [...this.state.topStories, {...data}]
+          });
         }
         catch (e) {
           console.error(e);
-          return {};
         }
-      })
-    );
-
-    this.setState({ hackerNewsData })
+      }
+    }
+    catch (e) {
+      console.error(e);
+      this.setState({topStories: []});
+    }
   }
 
   render() {
@@ -79,12 +65,12 @@ class App extends React.Component<Props, State> {
           <Grid item xs={12} sm={6}>
             <h1>Best of Hacker News</h1>
             {
-              state.hackerNewsData.map((story, index) => {
+              state.topStories.map((story, index) => {
                 return (
                   <div key={index}>
                     <h5><a href={story.url}>{story.title}</a></h5>
                     <h6>By: {story.by}</h6>
-                    {
+                    {/* {
                       story.comments.map((comment, index) => {
                         return (
                           <div key={index}>
@@ -92,7 +78,7 @@ class App extends React.Component<Props, State> {
                           </div>
                         )
                       })
-                    }
+                    } */}
                   </div>
                 )
               })

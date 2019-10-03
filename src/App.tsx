@@ -30,10 +30,12 @@ class App extends React.Component<Props, State> {
           commentIDs[i] = data.kids[i];
         }
 
-        const comments = commentIDs.map(async (commentID : Number) => {
-          const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${commentID}.json`);
-          return (data || {}).text || null;
-        });
+        const comments = await Promise.all(
+          commentIDs.map(async (commentID : Number) => {
+            const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${commentID}.json`);
+            return (data || {}).text || null;
+          })
+        );
 
         return comments;
       })

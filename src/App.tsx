@@ -4,11 +4,20 @@ import axios from 'axios'
 
 interface Props {}
 
-interface State {}
+interface State {
+  hackerNewsData: Array<Story>
+}
+
+interface Story {
+  by: string,
+  comments: Array<string>,
+  title: string,
+  url: string,
+}
 
 class App extends React.Component<Props, State> {
   state: State = {
-
+    hackerNewsData: []
   };
 
   async componentDidMount() {
@@ -23,7 +32,7 @@ class App extends React.Component<Props, State> {
     // hackerNewsData is an array of objects, each containing story data and an array of top 10 comments
     const hackerNewsData = await Promise.all(
       // Retrieve the stories and top 10 commentIDs for each story
-      storyIDs.map(async (storyID : Number) => {
+      storyIDs.map(async (storyID : number) => {
         try {
           const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${storyID}.json`);
           const commentIDs = new Array(10).fill(null);
@@ -34,7 +43,7 @@ class App extends React.Component<Props, State> {
   
           // Retrieve the comments from the commentIDs
           const comments = await Promise.all(
-            commentIDs.map(async (commentID : Number) => {
+            commentIDs.map(async (commentID : number) => {
               try {
                 const { data } = await axios.get(`https://hacker-news.firebaseio.com/v0/item/${commentID}.json`);
                 return (data || {}).text || null;
@@ -56,12 +65,35 @@ class App extends React.Component<Props, State> {
         }
       })
     );
+
+    this.setState({hackerNewsData})
   }
 
   render() {
+    const { state } = this;
+
     return (
       <div className="App">
         <h1>Best of Hacker News</h1>
+        {
+          state.hackerNewsData.map((story, index) => {
+            return (
+              <div key={index}>
+                <h5><a href={story.url}>{story.title}</a></h5>
+                <h6>By: {story.by}</h6>
+                {
+                  story.comments.map((comment, index) => {
+                    return (
+                      <div key={index}>
+                        <div dangerouslySetInnerHTML={{ __html: comment }} />
+                      </div>
+                    )
+                  })
+                }
+              </div>
+            )
+          })
+        }
       </div>
     );
   }

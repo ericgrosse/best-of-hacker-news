@@ -2,6 +2,7 @@ import React from 'react';
 import './App.scss';
 import apiHelper from '../helpers/apiHelper';
 import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 
 interface Props { }
 
@@ -67,28 +68,31 @@ class App extends React.Component<Props, State> {
             {
               state.topStories.map((story, index) => {
                 return (
-                  <div key={index}>
-                    <h5><a href={story.url}>{story.title}</a></h5>
-                    <h6>By: {story.by}</h6>
-                    {/* {
-                      story.comments.map((comment, index) => {
-                        return (
-                          <div key={index}>
-                            <div dangerouslySetInnerHTML={{ __html: comment }} />
-                          </div>
-                        )
-                      })
-                    } */}
-                  </div>
-                )
+                  <StoryPanel
+                    key={index}
+                    story={story}
+                  />
+                );
               })
             }
           </Grid>
-
         </Grid>
       </div>
     );
   }
+}
+
+interface SampleProps {
+  story: Story
+}
+
+const StoryPanel : React.FC<SampleProps> = ({story}) => {
+  return (
+    <Paper>
+      <h5><a href={story.url}>{story.title}</a></h5>
+      <h6>By: {story.by}</h6>
+    </Paper>
+  );
 }
 
 export default App;

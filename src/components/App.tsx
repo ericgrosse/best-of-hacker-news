@@ -23,18 +23,18 @@ class App extends React.Component<Props, State> {
 
   async componentDidMount() {
     try {
-      // Retrieve the top 20 storyIDs
-      const { data } = await apiHelper.getTopStories();
-      let storyIDs = new Array(20).fill(null);
-      let storyCount = Math.min(data.length, storyIDs.length);
-  
-      for (let i = 0; i < storyCount; ++i) {
-        storyIDs[i] = data[i];
+      // Retrieve the top storyIDs
+      let { data : storyIDs } = await apiHelper.getTopStories();
+
+      // Filter down to the top 20 storyIDs
+      if (storyIDs.length > 20) {
+        storyIDs = storyIDs.slice(0, 20);
       }
   
-      for (let i = 0; i < storyCount; ++i) {
+      // For each storyID, make an API call to retrieve the relevant story and update state accordingly
+      storyIDs.forEach(async (storyID : number) => {
         try {
-          const { data } = await apiHelper.getStory(storyIDs[i]);
+          const { data } = await apiHelper.getStory(storyID);
 
           // If there are no comments, this property isn't set in the object returned by the API, so set it to an empty array.
           if (!data.kids) {
@@ -48,7 +48,7 @@ class App extends React.Component<Props, State> {
         catch (e) {
           console.error(e);
         }
-      }
+      })
     }
     catch (e) {
       console.error(e);

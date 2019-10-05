@@ -3,6 +3,11 @@ import './App.scss';
 import apiHelper from '../helpers/apiHelper';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Typography from '@material-ui/core/Typography';
 
 interface Props { }
 
@@ -25,15 +30,15 @@ class App extends React.Component<Props, State> {
   async componentDidMount() {
     try {
       // Retrieve the top storyIDs
-      let { data : storyIDs } = await apiHelper.getTopStories();
+      let { data: storyIDs } = await apiHelper.getTopStories();
 
       // Filter down to the top 20 storyIDs
       if (storyIDs.length > 20) {
         storyIDs = storyIDs.slice(0, 20);
       }
-  
+
       // For each storyID, make an API call to retrieve the relevant story and update state accordingly
-      storyIDs.forEach(async (storyID : number) => {
+      storyIDs.forEach(async (storyID: number) => {
         try {
           const { data } = await apiHelper.getStory(storyID);
 
@@ -42,8 +47,13 @@ class App extends React.Component<Props, State> {
             data.kids = [];
           }
 
+          // Filter down to top 10 commentIDs
+          if (data.kids.length > 10) {
+            data.kids = data.kids.slice(0, 10);
+          }
+
           this.setState({
-            topStories: [...this.state.topStories, {...data}]
+            topStories: [...this.state.topStories, { ...data }]
           });
         }
         catch (e) {
@@ -53,7 +63,7 @@ class App extends React.Component<Props, State> {
     }
     catch (e) {
       console.error(e);
-      this.setState({topStories: []});
+      this.setState({ topStories: [] });
     }
   }
 
@@ -65,16 +75,7 @@ class App extends React.Component<Props, State> {
         <Grid container justify={'center'}>
           <Grid item xs={12} sm={6}>
             <h1>Best of Hacker News</h1>
-            {
-              state.topStories.map((story, index) => {
-                return (
-                  <StoryPanel
-                    key={index}
-                    story={story}
-                  />
-                );
-              })
-            }
+            <TopStories stories={state.topStories} />
           </Grid>
         </Grid>
       </div>
@@ -82,17 +83,57 @@ class App extends React.Component<Props, State> {
   }
 }
 
-interface SampleProps {
+interface TopStoriesProps {
+  stories: Array<Story>
+}
+
+interface StoryPanelProps {
   story: Story
 }
 
-const StoryPanel : React.FC<SampleProps> = ({story}) => {
-  return (
-    <Paper>
-      <h5><a href={story.url}>{story.title}</a></h5>
-      <h6>By: {story.by}</h6>
-    </Paper>
-  );
+interface CommentsProps {
+  comments: Array<string>
 }
+
+const TopStories: React.FC<TopStoriesProps> = ({ stories }) => (
+  <div>
+    {
+      stories.map((story, index) => (
+        <StoryPanel
+          key={index}
+          story={story}
+        />
+      ))
+    }
+  </div>
+);
+
+const StoryPanel: React.FC<StoryPanelProps> = ({ story }) => (
+  <Paper>
+    <h4><a href={story.url}>{story.title}</a></h4>
+    <h5>By: {story.by}</h5>
+    <Comments comments={story.kids} />
+  </Paper>
+);
+
+const Comments: React.FC<CommentsProps> = ({ comments }) => {
+  return (
+    <ExpansionPanel onClick={() => { console.log('doStuff') }}>
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>Comments</Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <Typography>Sample comment</Typography>
+        {/*
+          comments.map((comment, index) => (
+            <div>
+              <Typography key={index}>{comment}</Typography>
+            </div>
+          ))
+          */}
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  );
+};
 
 export default App;

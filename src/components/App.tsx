@@ -27,9 +27,9 @@ class App extends React.Component<Props, State> {
       // Retrieve the top storyIDs
       let { data: storyIDs } = await apiHelper.getTopStories();
 
-      // Filter down to the top 20 storyIDs
-      if (storyIDs.length > 20) {
-        storyIDs = storyIDs.slice(0, 20);
+      // Filter down to the top 10 storyIDs
+      if (storyIDs.length > 10) {
+        storyIDs = storyIDs.slice(0, 10);
       }
 
       // For each storyID, make an API call to retrieve the relevant story and update state accordingly
@@ -43,9 +43,9 @@ class App extends React.Component<Props, State> {
             data.kids = [];
           }
 
-          // Filter down to top 10 commentIDs
-          if (data.kids.length > 10) {
-            data.kids = data.kids.slice(0, 10);
+          // Filter down to top 20 commentIDs
+          if (data.kids.length > 20) {
+            data.kids = data.kids.slice(0, 20);
           }
 
           this.setState({

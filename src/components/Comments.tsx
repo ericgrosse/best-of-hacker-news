@@ -6,6 +6,20 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Comment from '../components/Comment';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    background: '#e65050',
+    color: 'white',
+  },
+  details: {
+    display: 'block'
+  },
+  icon: {
+    color: 'white'
+  },
+}));
 
 interface CommentsProps {
   commentIDs: Array<string>,
@@ -15,12 +29,14 @@ interface CommentsProps {
 }
 
 const Comments: React.FC<CommentsProps> = ({ commentIDs, comments, storyIndex, getComments }) => {
+  const classes = useStyles();
+
   return (
-    <ExpansionPanel onClick={() => { getComments(commentIDs, storyIndex) }}>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+    <ExpansionPanel className={classes.root} onClick={() => { getComments(commentIDs, storyIndex) }}>
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon className={classes.icon} />}>
         <Typography>Comments</Typography>
       </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
+      <ExpansionPanelDetails className={classes.details}>
         {
           comments.length === 0 ?
             <CircularProgress /> :

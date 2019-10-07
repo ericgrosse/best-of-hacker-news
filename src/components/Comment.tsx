@@ -1,5 +1,6 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
+import './Comment.scss';
 
 interface CommentProps {
   comment: string
@@ -7,9 +8,10 @@ interface CommentProps {
 
 const Comment: React.FC<CommentProps> = ({ comment }) => {
   return (
-    <Typography>
+    <div className="Comment">
       <div dangerouslySetInnerHTML={{ __html: comment }} />
-    </Typography>
+    </div>
+    
   );
 }
 

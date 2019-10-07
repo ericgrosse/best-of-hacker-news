@@ -1,0 +1,28 @@
+.StoryPanel {
+  .story-info {
+    padding: 0 16px;
+
+    a {
+      color: white;
+
+      &:hover {
+        color: darken(white, 5%);
+      }
+
+      &:active {
+        color: darken(white, 10%);
+      }
+    }
+  
+    p {
+      margin-top: 0;
+    }
+
+    h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      padding-top: 16px;
+      font-weight: normal;
+    }
+  }
+}

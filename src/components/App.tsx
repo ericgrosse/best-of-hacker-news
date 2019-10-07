@@ -1,26 +1,16 @@
 import React from 'react';
 import './App.scss';
+import { Story } from '../interfaces/Story';
 import apiHelper from '../helpers/apiHelper';
+import TopStories from '../components/TopStories';
+
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 interface Props { }
 
 interface State {
   topStories: Array<Story>
-}
-
-interface Story {
-  by: string,
-  kids: Array<string>, // kids are comments,
-  comments?: Array<string>,
-  title: string,
-  url: string,
 }
 
 class App extends React.Component<Props, State> {
@@ -46,6 +36,7 @@ class App extends React.Component<Props, State> {
       storyIDs.forEach(async (storyID: number) => {
         try {
           const { data } = await apiHelper.getStory(storyID);
+          data.comments = []; // Add a comments property to the data, which is populated when getComments() is called.
 
           // If there are no comments, this property isn't set in the object returned by the API, so set it to an empty array.
           if (!data.kids) {
@@ -106,81 +97,21 @@ class App extends React.Component<Props, State> {
     return (
       <div className="App">
         <Grid container justify={'center'}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={8}>
             <h1>Best of Hacker News</h1>
-            <TopStories
-              stories={state.topStories}
-              getComments={this.getComments}
-            />
+            {
+              state.topStories.length === 0 ?
+                <CircularProgress /> :
+                <TopStories
+                  stories={state.topStories}
+                  getComments={this.getComments}
+                />
+            }
           </Grid>
         </Grid>
       </div>
     );
   }
 }
-
-interface TopStoriesProps {
-  stories: Array<Story>,
-  getComments: any,
-}
-
-interface StoryPanelProps {
-  story: Story,
-  storyIndex: number,
-  getComments: any,
-}
-
-interface CommentsProps {
-  commentIDs: Array<string>,
-  storyIndex: number,
-  getComments: any,
-}
-
-const TopStories: React.FC<TopStoriesProps> = ({ stories, getComments }) => (
-  <div>
-    {
-      stories.map((story, index) => (
-        <StoryPanel
-          key={index}
-          story={story}
-          storyIndex={index}
-          getComments={getComments}
-        />
-      ))
-    }
-  </div>
-);
-
-const StoryPanel: React.FC<StoryPanelProps> = ({ story, storyIndex, getComments }) => (
-  <Paper>
-    <h4><a href={story.url}>{story.title}</a></h4>
-    <h5>By: {story.by}</h5>
-    <Comments
-      commentIDs={story.kids}
-      storyIndex={storyIndex}
-      getComments={getComments}
-    />
-  </Paper>
-);
-
-const Comments: React.FC<CommentsProps> = ({ commentIDs, storyIndex, getComments }) => {
-  return (
-    <ExpansionPanel onClick={() => { getComments(commentIDs, storyIndex) }}>
-      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography>Comments</Typography>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
-        <Typography>Sample comment</Typography>
-        {/*
-          comments.map((comment, index) => (
-            <div>
-              <Typography key={index}>{comment}</Typography>
-            </div>
-          ))
-          */}
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
-  );
-};
 
 export default App;

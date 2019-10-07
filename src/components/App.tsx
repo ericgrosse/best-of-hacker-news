@@ -17,7 +17,8 @@ interface State {
 
 interface Story {
   by: string,
-  kids: Array<string>, // kids are comments
+  kids: Array<string>, // kids are comments,
+  comments?: Array<string>,
   title: string,
   url: string,
 }
@@ -28,6 +29,10 @@ class App extends React.Component<Props, State> {
   };
 
   async componentDidMount() {
+    this.getTopStories();
+  }
+
+  getTopStories = async () => {
     try {
       // Retrieve the top storyIDs
       let { data: storyIDs } = await apiHelper.getTopStories();
@@ -67,6 +72,34 @@ class App extends React.Component<Props, State> {
     }
   }
 
+  getComments = async (commentIDs: Array<number>, storyIndex: number) => {
+    const { state } = this;
+
+    const comments = await Promise.all(
+      commentIDs.map(async (commentID: number) => {
+        try {
+          const { data } = await apiHelper.getComment(commentID);
+          return data.text;
+        }
+        catch (e) {
+          console.error(e);
+          return null;
+        }
+      })
+    );
+
+    let currentStory = Object.assign({}, this.state.topStories[storyIndex]);
+    currentStory.comments = comments;
+
+    this.setState({
+      topStories: [
+        ...state.topStories.slice(0, storyIndex),
+        currentStory,
+        ...state.topStories.slice(storyIndex + 1),
+      ]
+    });
+  }
+
   render() {
     const { state } = this;
 
@@ -75,7 +108,10 @@ class App extends React.Component<Props, State> {
         <Grid container justify={'center'}>
           <Grid item xs={12} sm={6}>
             <h1>Best of Hacker News</h1>
-            <TopStories stories={state.topStories} />
+            <TopStories
+              stories={state.topStories}
+              getComments={this.getComments}
+            />
           </Grid>
         </Grid>
       </div>
@@ -84,41 +120,52 @@ class App extends React.Component<Props, State> {
 }
 
 interface TopStoriesProps {
-  stories: Array<Story>
+  stories: Array<Story>,
+  getComments: any,
 }
 
 interface StoryPanelProps {
-  story: Story
+  story: Story,
+  storyIndex: number,
+  getComments: any,
 }
 
 interface CommentsProps {
-  comments: Array<string>
+  commentIDs: Array<string>,
+  storyIndex: number,
+  getComments: any,
 }
 
-const TopStories: React.FC<TopStoriesProps> = ({ stories }) => (
+const TopStories: React.FC<TopStoriesProps> = ({ stories, getComments }) => (
   <div>
     {
       stories.map((story, index) => (
         <StoryPanel
           key={index}
           story={story}
+          storyIndex={index}
+          getComments={getComments}
         />
       ))
     }
   </div>
 );
 
-const StoryPanel: React.FC<StoryPanelProps> = ({ story }) => (
+const StoryPanel: React.FC<StoryPanelProps> = ({ story, storyIndex, getComments }) => (
   <Paper>
     <h4><a href={story.url}>{story.title}</a></h4>
     <h5>By: {story.by}</h5>
-    <Comments comments={story.kids} />
+    <Comments
+      commentIDs={story.kids}
+      storyIndex={storyIndex}
+      getComments={getComments}
+    />
   </Paper>
 );
 
-const Comments: React.FC<CommentsProps> = ({ comments }) => {
+const Comments: React.FC<CommentsProps> = ({ commentIDs, storyIndex, getComments }) => {
   return (
-    <ExpansionPanel onClick={() => { console.log('doStuff') }}>
+    <ExpansionPanel onClick={() => { getComments(commentIDs, storyIndex) }}>
       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
         <Typography>Comments</Typography>
       </ExpansionPanelSummary>

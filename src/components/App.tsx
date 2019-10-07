@@ -63,8 +63,12 @@ class App extends React.Component<Props, State> {
     }
   }
 
-  getComments = async (commentIDs: Array<number>, storyIndex: number) => {
+  getComments = async (commentIDs: Array<number>, storyIndex: number, isExpanded: boolean) => {
     const { state } = this;
+
+    if (!isExpanded) {
+      return;
+    }
 
     const comments = await Promise.all(
       commentIDs.map(async (commentID: number) => {

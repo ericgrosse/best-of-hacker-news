@@ -32,15 +32,19 @@ const Comments: React.FC<CommentsProps> = ({ commentIDs, comments, storyIndex, g
   const classes = useStyles();
 
   return (
-    <ExpansionPanel className={classes.root} onClick={() => { getComments(commentIDs, storyIndex) }}>
+    <ExpansionPanel className={classes.root} onChange={(e, isExpanded) => { getComments(commentIDs, storyIndex, isExpanded) }}>
       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon className={classes.icon} />}>
         <Typography>Comments</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
         {
-          comments.length === 0 ?
+          commentIDs.length === 0 ?
+          <p>No comments</p> :
+          (
+            comments.length === 0 ?
             <CircularProgress /> :
             comments.map((comment, index) => (<Comment key={index} comment={comment} />))
+          )
         }
       </ExpansionPanelDetails>
     </ExpansionPanel>

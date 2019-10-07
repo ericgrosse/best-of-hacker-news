@@ -2,7 +2,19 @@
   padding: 16px;
   border: 1px solid white;
   
+  .author {
+    margin-top: 0;
+  }
+
   a {
     color: white;
+
+    &:hover {
+      color: darken(white, 5%);
+    }
+
+    &:active {
+      color: darken(white, 10%);
+    }
   }
 }

@@ -70,7 +70,10 @@ class App extends React.Component<Props, State> {
       commentIDs.map(async (commentID: number) => {
         try {
           const { data } = await apiHelper.getComment(commentID);
-          return data.text;
+          return {
+            by: data.by,
+            text: data.text
+          };
         }
         catch (e) {
           console.error(e);

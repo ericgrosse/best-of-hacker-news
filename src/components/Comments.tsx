@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 
 interface CommentsProps {
   commentIDs: Array<string>,
-  comments: Array<string>,
+  comments: Array<any>,
   storyIndex: number,
   getComments: any,
 }

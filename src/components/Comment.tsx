@@ -1,18 +1,19 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import './Comment.scss';
+import { Comment } from '../interfaces/Comment';
 
 interface CommentProps {
-  comment: string
+  comment: Comment
 }
 
-const Comment: React.FC<CommentProps> = ({ comment }) => {
+const _Comment: React.FC<CommentProps> = ({ comment }) => {
   return (
     <div className="Comment">
-      <div dangerouslySetInnerHTML={{ __html: comment }} />
+      <p className="author">{comment.by}: </p>
+      <div dangerouslySetInnerHTML={{ __html: comment.text }} />
     </div>
-    
   );
 }
 
-export default Comment;
+export default _Comment;

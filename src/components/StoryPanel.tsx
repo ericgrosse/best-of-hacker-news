@@ -7,8 +7,8 @@ import './StoryPanel.scss';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    background: '#e65050',
-    color: 'white',
+    //background: '#e65050',
+    //color: 'white',
     padding: '0',
     margin: '16px 0',
   }

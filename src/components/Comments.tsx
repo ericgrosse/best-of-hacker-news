@@ -10,14 +10,14 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    background: '#e65050',
-    color: 'white',
+    //background: '#e65050',
+    //color: 'white',
   },
   details: {
     display: 'block'
   },
   icon: {
-    color: 'white'
+    //color: 'white'
   },
 }));
 
